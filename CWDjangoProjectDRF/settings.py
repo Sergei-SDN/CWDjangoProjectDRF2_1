@@ -90,11 +90,11 @@ WSGI_APPLICATION = 'CWDjangoProjectDRF.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DATABASES_NAME'),
-        'USER': os.getenv('DATABASES_USER'),
-        'HOST': os.getenv('DATABASES_HOST'),
-        'PORT': os.getenv('DATABASES_PORT'),
-        'PASSWORD': os.getenv('DATABASES_PASSWORD')
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
     }
 }
 
