@@ -1,0 +1,69 @@
+version: "3.9"
+
+services:
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
+  db:
+    image: postgres:16-alpine
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "Jhfkrfvijn2022"
+      POSTGRES_DB: "drf_cw_db"
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data
+    networks:
+      - drf_cw_network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+    tty: true
+    command: >
+      bash -c "python manage.py makemigrations 
+      && python manage.py migrate 
+      && python manage.py runserver 0.0.0.0:8000"
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    networks:
+      - drf_cw_network
+    depends_on:
+      db:
+        condition: service_healthy
+
+  celery:
+    build: .
+    tty: true
+    command: celery -A config worker -l INFO -P eventlet
+    depends_on:
+      - redis
+      - app
+
+  celery_beat:
+    build: .
+    tty: true
+    command: celery -A config beat -l INFO -S django
+    depends_on:
+      - redis
+      - app
+
+volumes:
+  pg_data:
+
+networks:
+  drf_cw_network:
+    driver: bridge
