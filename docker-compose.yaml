@@ -51,7 +51,7 @@ services:
     command: celery -A config worker -l INFO -P eventlet
     depends_on:
       - redis
-      - app
+      - db
 
   celery_beat:
     build: .
@@ -59,7 +59,7 @@ services:
     command: celery -A config beat -l INFO -S django
     depends_on:
       - redis
-      - app
+      - db
 
 volumes:
   pg_data:
